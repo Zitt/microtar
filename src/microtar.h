@@ -13,10 +13,24 @@ extern "C"
 {
 #endif
 
-#include <stdio.h>
-#include <stdlib.h>
+#ifndef UEFI
+ #include <stdio.h>
+ #include <stdlib.h>
+#else //isUEFI
+ #include "misc.h"
 
-#define MTAR_VERSION "0.1.0"
+ #ifndef offsetof
+  #define offsetof OFFSET_OF
+ #endif 
+
+ #define FN_MAX (20*sizeof(CHAR16)) /*MAX_FILE_NAME_LEN*/
+
+ #ifndef RSIZE_MAX
+  #define RSIZE_MAX 16*FN_MAX
+ #endif 
+#endif
+
+#define MTAR_VERSION "0.1.1"
 
 enum {
   MTAR_ESUCCESS     =  0,
@@ -68,6 +82,9 @@ struct mtar_t {
 const char* mtar_strerror(int err);
 
 int mtar_open(mtar_t *tar, const char *filename, const char *mode);
+#ifdef UEFI
+int mtar_open16(mtar_t *tar, const CHAR16 *filename, const char *mode);
+#endif
 int mtar_close(mtar_t *tar);
 
 int mtar_seek(mtar_t *tar, unsigned pos);
